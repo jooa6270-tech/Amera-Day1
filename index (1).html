@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol: Tomorrow's Date</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #050508;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            background: rgba(15, 15, 25, 0.85);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 20px;
+            padding: 40px 20px;
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(12px);
+            position: relative;
+            transition: transform 0.1s ease;
+        }
+
+        /* تأثير الزلزال المرعب لمدة 3 ثواني */
+        .earthquake-screen {
+            animation: earthquake 0.15s infinite alternate, alarmFlash 3s ease-in-out;
+            border: 4px solid #ff0000 !important;
+        }
+
+        @keyframes earthquake {
+            0% { transform: translate(12px, 10px) rotate(1deg); }
+            20% { transform: translate(-12px, -12px) rotate(-1.5deg); }
+            40% { transform: translate(15px, 8px) rotate(1.5deg); }
+            60% { transform: translate(-15px, -8px) rotate(-1deg); }
+            80% { transform: translate(8px, 12px) rotate(1deg); }
+            100% { transform: translate(-10px, -10px) rotate(-1.5deg); }
+        }
+
+        @keyframes alarmFlash {
+            0%, 100% { background-color: rgba(15, 15, 25, 0.85); }
+            25% { background-color: rgba(255, 0, 0, 0.4); }
+            50% { background-color: rgba(0, 0, 0, 0.9); }
+            75% { background-color: rgba(255, 0, 0, 0.4); }
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        p.subtitle {
+            color: #a0a0c0;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        .day-badge {
+            display: inline-block;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            color: #00ffff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            font-family: monospace, sans-serif;
+        }
+
+        /* سلايدر الصور المتحرك */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 0 auto 25px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.4);
+            background: #000;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-btns {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .slide-btn {
+            background: rgba(138, 43, 226, 0.3);
+            border: 1px solid #00ffff;
+            color: #fff;
+            padding: 6px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .slide-btn:hover {
+            background: #00ffff;
+            color: #050508;
+        }
+
+        .card {
+            background: rgba(25, 25, 40, 0.6);
+            border-left: 4px solid #00ffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: right;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #f0f0f5;
+        }
+        .buttons-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: linear-gradient(135deg, #8a2be2, #00ffff);
+            color: #050508;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            transition: opacity 0.3s;
+        }
+        .btn-music {
+            background: linear-gradient(135deg, #ff007f, #8a2be2);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+        }
+        .btn-special {
+            background: linear-gradient(135deg, #00ff87, #60efff);
+            color: #050508;
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.4);
+        }
+        .btn-fayoum {
+            background: linear-gradient(135deg, #ffaa00, #ff0055);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.4);
+        }
+        .btn-happy {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ستايل الرسالة السرية بعد الزلزال */
+        .secret-msg {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 128, 0.15), rgba(0, 255, 255, 0.15));
+            border: 2px dashed #00ff80;
+            border-radius: 15px;
+            color: #00ffab;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: none;
+            text-shadow: 0 0 12px rgba(0, 255, 171, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 128, 0.2);
+            animation: popUp 0.5s ease-in-out;
+        }
+
+        /* ستايل الرسائل الخاصة بالأزرار */
+        .custom-msg, .fayoum-msg, .happy-msg {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: none;
+            animation: popUp 0.5s ease-in-out;
+        }
+        .custom-msg {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.15), rgba(138, 43, 226, 0.15));
+            border: 2px dashed #ff007f;
+            color: #ff80bf;
+            text-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.2);
+        }
+        .fayoum-msg {
+            background: linear-gradient(135deg, rgba(255, 170, 0, 0.15), rgba(255, 0, 85, 0.15));
+            border: 2px dashed #ffaa00;
+            color: #ffcc4d;
+            text-shadow: 0 0 12px rgba(255, 170, 0, 0.5);
+            box-shadow: 0 0 30px rgba(255, 170, 0, 0.2);
+        }
+        .happy-msg {
+            background: linear-gradient(135deg, rgba(0, 198, 255, 0.15), rgba(0, 114, 255, 0.15));
+            border: 2px dashed #00c6ff;
+            color: #66e0ff;
+            text-shadow: 0 0 12px rgba(0, 198, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 198, 255, 0.2);
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* شاشة الباسورد الخارجية المشوقة */
+        #authScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .terminal-box {
+            background: rgba(10, 10, 18, 0.95);
+            border: 2px solid #ff007f;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);
+            font-family: monospace;
+            text-align: right;
+        }
+        .terminal-line {
+            color: #00ffab;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            text-shadow: 0 0 8px rgba(0, 255, 171, 0.5);
+        }
+        .terminal-line span {
+            color: #ff007f;
+        }
+        .auth-input {
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 2px solid #00ffff;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+            width: 80%;
+            max-width: 280px;
+            margin: 15px 0;
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
+            letter-spacing: 3px;
+        }
+        .error-text {
+            color: #ff007f;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+            font-weight: bold;
+        }
+        #mainSite {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        
+        <!-- 1️⃣ شاشة الباسورد المشوقة جداً -->
+        <div id="authScreen">
+            <h1>⚠️ RESTRICTED ACCESS</h1>
+            <p class="subtitle">خشي ل أول يوم</p>
+            
+            <!-- نافذة التيرمينال الغامضة -->
+            <div class="terminal-box">
+                <div class="terminal-line">> System Status: <span>LOCKED 🔒</span></div>
+                <div class="terminal-line">> Security Level: <span>MAXIMUM</span></div>
+                <div class="terminal-line">> Warning: Unauthorized entry will trigger alarms.</div>
+            </div>
+
+            <input type="password" id="passInput" class="auth-input" placeholder="••••••••" maxlength="15">
+            <button class="btn" onclick="checkPassword()">فك التشفير ودخول 🚀</button>
+            <p id="errorMsg" class="error-text">⚠️ خطأ في الشفرة.. النظام رافض الدخول!</p>
+        </div>
+
+        <!-- 2️⃣ السايت الرئيسي بعد فك الباسورد -->
+        <div id="mainSite">
+            <h1>System made for you for a day</h1>
+            <p class="subtitle">إيه الجمدان ده 😂❤️</p>
+
+            <!-- جملة اليوم الأول بالإنجليزي -->
+            <div class="day-badge">
+                Day One 🌟🚀
+            </div>
+
+            <!-- سلايدر الصور المتحرك -->
+            <div class="slider-container" id="slider">
+                <div class="slide active"><img src="https://files.catbox.moe/396gfl.jpg" alt="Mera 1"></div>
+                <div class="slide"><img src="https://files.catbox.moe/a5q8ju.jpg" alt="Mera 2"></div>
+                <div class="slide"><img src="https://files.catbox.moe/rt0p4k.webp" alt="Mera 3"></div>
+                <div class="slide"><img src="https://files.catbox.moe/m3a35e.jpg" alt="Mera 4"></div>
+                <div class="slide"><img src="https://files.catbox.moe/7qggk1.jpg" alt="Mera 5"></div>
+                <div class="slide"><img src="https://files.catbox.moe/f2b2xl.jpg" alt="Mera 6"></div>
+                <div class="slide"><img src="https://files.catbox.moe/q0akbi.jpg" alt="Mera 7"></div>
+                <div class="slide"><img src="https://files.catbox.moe/aypo4p.jpg" alt="Mera 8"></div>
+            </div>
+
+            <!-- أزرار التنقل بين الصور -->
+            <div class="slider-btns">
+                <button class="slide-btn" onclick="prevSlide()">❮ السابق</button>
+                <button class="slide-btn" onclick="nextSlide()">التالي ❯</button>
+            </div>
+
+            <!-- الكارت النصي -->
+            <div class="card">
+                أجمد يوم هقضيه في الجامعة هيكون النهارده ومش هيكون آخر مره، اللي جاي أحسن أكيد ولا إيه؟ ✨
+            </div>
+
+            <!-- الأزرار والمفاجآت وتشغيل الأغنية -->
+            <div class="buttons-group">
+                <button class="btn btn-music" id="scareBtn" onclick="triggerEarthquakeAndReveal()">دوسي هنا بسرعة ⚠️</button>
+                <button class="btn btn-special" onclick="showCustomMessage()">كلمتين من القلب ❤️</button>
+                <button class="btn btn-fayoum" onclick="showFayoumMessage()">لازم اللي جوه يحصل 🏜️</button>
+                <button class="btn btn-happy" onclick="showHappyMessage()">بس أنا مبسوطة النهارده 😂❤️</button>
+                <button class="btn btn-music" id="musicBtn" onclick="toggleMusic()">🎵 تشغيل أغنية متتقلقيش</button>
+            </div>
+
+            <!-- الرسالة بعد الزلزال -->
+            <div id="secretText" class="secret-msg">
+                أجمل يوم اقسم بالله ❤️✨🚀
+            </div>
+
+            <!-- الرسائل الخاصة بالأزرار -->
+            <div id="customText" class="custom-msg">
+                أحلى يوم هقضيه النهارده.. النهارده يومك إنتي وبس 😂❤️ ويارب أقدر أفرحك النهارده ومأزعلكيش خالص 🤍
+            </div>
+
+            <div id="fayoumText" class="fayoum-msg">
+                لازم نظبط النهارده يوم بتاع الفيوم 😂😂😂😂
+            </div>
+
+            <div id="happyText" class="happy-msg">
+                بس أنا مبسوطة النهارده 😂❤️
+            </div>
+        </div>
+
+    </div>
+
+    <!-- عنصر الصوت -->
+    <audio id="bgMusic" loop>
+        <source src="https://files.catbox.moe/xh6m9w.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        function checkPassword() {
+            const inputVal = document.getElementById("passInput").value.trim();
+            const correctPass = "2292026"; 
+
+            if (inputVal === correctPass) {
+                document.getElementById("authScreen").style.display = "none";
+                document.getElementById("mainSite").style.display = "block";
+                
+                var music = document.getElementById("bgMusic");
+                music.play().catch(e => console.log("Audio autoplay restricted"));
+                document.getElementById("musicBtn").innerHTML = "⏸️ إيقاف الأغنية";
+            } else {
+                document.getElementById("errorMsg").style.display = "block";
+            }
+        }
+
+        // سلايدر الصور
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove("active"));
+            slides[index].classList.add("active");
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        setInterval(nextSlide, 3500);
+
+        // وظيفة الزلزال لمدة 3 ثواني وبعدها تظهر الرسالة
+        function triggerEarthquakeAndReveal() {
+            const container = document.getElementById("mainContainer");
+            const secretBox = document.getElementById("secretText");
+            const btn = document.getElementById("scareBtn");
+
+            btn.disabled = true;
+            container.classList.add("earthquake-screen");
+
+            setTimeout(() => {
+                container.classList.remove("earthquake-screen");
+                secretBox.style.display = "block";
+                btn.style.display = "none";
+            }, 3000);
+        }
+
+        // إظهار الرسائل للأزرار
+        function showCustomMessage() {
+            document.getElementById("customText").style.display = "block";
+        }
+
+        function showFayoumMessage() {
+            document.getElementById("fayoumText").style.display = "block";
+        }
+
+        function showHappyMessage() {
+            document.getElementById("happyText").style.display = "block";
+        }
+
+        // تحكم الأغنية
+        var music = document.getElementById("bgMusic");
+        var musicBtn = document.getElementById("musicBtn");
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+                musicBtn.innerHTML = "⏸️ إيقاف الأغنية";
+            } else {
+                music.pause();
+                musicBtn.innerHTML = "🎵 تشغيل أغنية متتقلقيش";
+            }
+        }
+    </script>
+
+</body>
+</html>
